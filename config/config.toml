@@ -1,0 +1,11 @@
+log="log/"
+connectmgr="127.0.0.1:3000"
+portmgr=3000
+badproc=10
+#Описание параметров доступа к БД
+[dataBase]
+	host= "192.168.115.25"
+	port= 5432
+	user= "postgres"
+	password= "162747"
+	dbname= "agserv"

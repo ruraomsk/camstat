@@ -1,0 +1,29 @@
+{
+    "region": 1,
+    "dks": [
+        {
+            "area": 1,
+            "dk": 1,
+            "type": "modbus",
+            "port": 5000
+        },
+        {
+            "area": 1,
+            "dk": 6,
+            "type": "integra",
+            "port": 5001
+        },
+        {
+            "area": 1,
+            "dk": 7,
+            "type": "integra",
+            "port": 5002
+        },
+        {
+            "area": 1,
+            "dk": 8,
+            "type": "modbus",
+            "port": 5003
+        }
+    ]
+}
