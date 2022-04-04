@@ -5,24 +5,32 @@
             "area": 1,
             "dk": 1,
             "type": "modbus",
+            "size": 16,
+            "demo": false,
             "port": 5000
         },
         {
             "area": 1,
             "dk": 6,
-            "type": "integra",
+            "size": 12,
+            "type": "modbus",
+            "demo": true,
             "port": 5001
         },
         {
             "area": 1,
             "dk": 7,
-            "type": "integra",
+            "size": 8,
+            "type": "modbus",
+            "demo": true,
             "port": 5002
         },
         {
             "area": 1,
             "dk": 8,
             "type": "modbus",
+            "size": 4,
+            "demo": true,
             "port": 5003
         }
     ]

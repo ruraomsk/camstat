@@ -59,7 +59,7 @@ var masters []*Master
 func StartTestModbus(dkset *stat.DkSet) {
 	masters = make([]*Master, 0)
 	for _, v := range dkset.Dks {
-		if v.Type == "modbus" {
+		if v.Type == "modbus" && v.Demo {
 			m := Master{connect: fmt.Sprintf("127.0.0.1:%d", v.Port)}
 			go m.worker()
 			masters = append(masters, &m)

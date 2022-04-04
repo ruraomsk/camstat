@@ -28,6 +28,7 @@ type Device struct {
 	chanArch   chan pudge.ArchStat
 	isInterval bool
 	chanMGR    chan send.MgrMessage
+	size       int //Количество каналов в статистике
 }
 
 func (d *Device) Worker() {
@@ -127,6 +128,9 @@ func (d *Device) sendStatistics(ptime int) {
 	s := pudge.Statistic{Period: ptime / d.Tsum, Type: d.Type, TLen: d.Tsum / 60, Hour: ptime / 3600, Min: (ptime % 3600) / 60, Datas: make([]pudge.DataStat, 0)}
 	logger.Debug.Printf("id %d time %d period %d hour %d min %d ", d.ID, ptime, s.Period, s.Hour, s.Min)
 	for i, v := range g.Value {
+		if i >= d.size {
+			continue
+		}
 		st := 0
 		if !g.Good {
 			st = 1

@@ -20,7 +20,7 @@ func Starter(dkset *stat.DkSet, idms chan send.MgrMessage, chanArch chan pudge.A
 	for _, v := range dkset.Dks {
 		if v.Type == "modbus" {
 			reg := pudge.Region{Region: dkset.Region, Area: v.Area, ID: v.Ndk}
-			dev := Device{Port: v.Port, chanMGR: idms, chanArch: chanArch, Mrgs: make([]int, 0)}
+			dev := Device{size: v.Size, Port: v.Port, chanMGR: idms, chanArch: chanArch, Mrgs: make([]int, 0)}
 			dev.stat, err = dbase.GetArhs(reg, time.Now())
 			if err != nil {
 				logger.Error.Printf("чтение статистики %v %s", reg, err.Error())
@@ -41,11 +41,16 @@ func Starter(dkset *stat.DkSet, idms chan send.MgrMessage, chanArch chan pudge.A
 					}
 				}
 			}
-			dev.Type = cr.Arrays.StatDefine.Levels[0].TypeSt
+			if len(cr.Arrays.StatDefine.Levels) != 0 {
+				dev.Type = cr.Arrays.StatDefine.Levels[0].TypeSt
+				dev.Tsum = cr.Arrays.StatDefine.Levels[0].Period * 60
+			} else {
+				dev.Type = 1
+				dev.Tsum = 300
+			}
 			if dev.Type != 1 && dev.Type != 2 {
 				dev.Type = 1
 			}
-			dev.Tsum = cr.Arrays.StatDefine.Levels[0].Period * 60
 			go dev.Worker()
 			logger.Info.Printf("Создан modbus %v", reg)
 			devices = append(devices, dev)
