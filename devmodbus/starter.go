@@ -37,7 +37,9 @@ func Starter(dkset *stat.DkSet, idms chan send.MgrMessage, chanArch chan pudge.A
 					if strings.Contains(v.Name, "вх") {
 						v.Name = strings.ReplaceAll(v.Name, "вх", "")
 						i, _ := strconv.Atoi(v.Name)
-						dev.Mrgs = append(dev.Mrgs, i)
+						if i > 0 && i <= 16 {
+							dev.Mrgs = append(dev.Mrgs, i)
+						}
 					}
 				}
 			}

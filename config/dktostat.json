@@ -12,25 +12,25 @@
         {
             "area": 1,
             "dk": 6,
-            "size": 12,
+            "size": 16,
             "type": "modbus",
-            "demo": true,
+            "demo": false,
             "port": 5001
         },
         {
             "area": 1,
             "dk": 7,
-            "size": 8,
+            "size": 16,
             "type": "modbus",
-            "demo": true,
+            "demo": false,
             "port": 5002
         },
         {
             "area": 1,
             "dk": 8,
             "type": "modbus",
-            "size": 4,
-            "demo": true,
+            "size": 16,
+            "demo": false,
             "port": 5003
         }
     ]

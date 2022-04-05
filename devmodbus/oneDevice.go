@@ -78,6 +78,9 @@ func (d *Device) Worker() {
 func (d *Device) makeMGR() {
 	value := d.getValue()
 	mgr := send.MgrMessage{ID: d.ID, Time: time.Now(), Mgrs: make([]send.Mgr, 0)}
+	if len(d.Mrgs) == 0 {
+		return
+	}
 	for _, v := range d.Mrgs {
 		if value[v-1] > 0 {
 			mgr.Mgrs = append(mgr.Mgrs, send.Mgr{Chanel: v, Count: value[v-1]})
