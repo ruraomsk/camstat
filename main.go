@@ -34,6 +34,11 @@ func init() {
 		os.Exit(-1)
 		return
 	}
+	os.MkdirAll(setup.Set.LogPath, 0777)
+	if err := logger.Init(setup.Set.LogPath); err != nil {
+		log.Panic("Error logger system", err.Error())
+		return
+	}
 	buffer, err := config.ReadFile("config/dktostat.json")
 	if err != nil {
 		logger.Error.Println(err.Error())
@@ -48,15 +53,10 @@ func init() {
 		return
 	}
 
-	os.MkdirAll(setup.Set.LogPath, 0777)
 }
 func main() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
 
-	if err := logger.Init(setup.Set.LogPath); err != nil {
-		log.Panic("Error logger system", err.Error())
-		return
-	}
 	fmt.Println("CamStat start")
 	logger.Info.Println("CamStat start")
 	chanArch, err := dbase.InitDataBase()
