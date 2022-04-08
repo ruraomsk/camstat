@@ -96,9 +96,9 @@ func workerMGR(socket net.Conn) {
 			return
 		}
 		s = strings.ReplaceAll(s, "\n", "")
-		if strings.Compare(s, "0") != 0 {
-			logger.Debug.Printf("mgr:%s", s)
-		}
+		// if strings.Compare(s, "0") != 0 {
+		// 	logger.Debug.Printf("mgr:%s", s)
+		// }
 	}
 }
 func Sender(ids chan MgrMessage) {
@@ -107,7 +107,7 @@ func Sender(ids chan MgrMessage) {
 	go tcpSender(idss)
 	for {
 		idm := <-ids
-		logger.Debug.Printf("mgr %v", idm)
+		// logger.Debug.Printf("mgr %v", idm)
 		if work {
 			idss <- idm
 		}
