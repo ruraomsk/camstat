@@ -34,7 +34,7 @@ func tcpSender(ids chan MgrMessage) {
 		}
 		writer := bufio.NewWriter(socket)
 		work = true
-		ticker := time.NewTimer(1 * time.Second)
+		ticker := time.NewTimer(1 * time.Minute)
 	loop:
 		for {
 			select {
@@ -53,7 +53,7 @@ func tcpSender(ids chan MgrMessage) {
 					break loop
 				}
 				ticker.Stop()
-				ticker = time.NewTimer(1 * time.Second)
+				ticker = time.NewTimer(1 * time.Minute)
 			case <-ticker.C:
 				writer.WriteString("0\n")
 				err = writer.Flush()
@@ -63,7 +63,7 @@ func tcpSender(ids chan MgrMessage) {
 					break loop
 
 				}
-				ticker = time.NewTimer(1 * time.Second)
+				ticker = time.NewTimer(1 * time.Minute)
 			}
 		}
 		socket.Close()

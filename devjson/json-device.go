@@ -1,29 +1,31 @@
-package devmodbus
+package devjson
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/ruraomsk/ag-server/logger"
 	"github.com/ruraomsk/ag-server/pudge"
 	"github.com/ruraomsk/camstat/send"
 	"github.com/ruraomsk/camstat/setup"
-	"github.com/tbrandon/mbserver"
 )
 
 type OneSecondData struct {
 	Value [16]int //кол-во ТС в зоне детектирования или скорость в зависмости от типа
 	Good  bool    //Качество сигнала
 }
-type Device struct {
+type externalData struct {
+	intime int     //Число секунд от начала суток
+	vTS    [16]int //кол-во ТС в зоне детектирования
+	sTS    [16]int //скорость ТС в зоне детектирования
+}
+type DeviceJson struct {
 	Port       int
 	ID         int   //ID устройства в системе
 	Mrgs       []int //Номера каналов где следим за МГР
 	Type       int   //Истина по интенсивности ложь по скорости
 	Tsum       int   //Время усреднения в секундах
-	Time       int   //Время последней операции в секундах от начала суток
 	Intervals  map[int]OneSecondData
-	server     *mbserver.Server
+	chanData   chan externalData
 	stat       pudge.ArchStat
 	chanArch   chan pudge.ArchStat
 	isInterval bool
@@ -31,52 +33,42 @@ type Device struct {
 	size       int //Количество каналов в статистике
 }
 
-func (d *Device) Worker() {
+func (d *DeviceJson) Worker() {
 	d.isInterval = false
 	d.Intervals = make(map[int]OneSecondData)
 	if TimeNowOfSecond()%d.Tsum == 0 {
 		d.makeNewMap()
 	}
-	d.server = mbserver.NewServer()
-	// d.server.RegisterFunctionHandler(6, writeHoldingRegister)
-	// d.server.RegisterFunctionHandler(16, writeHoldingRegisters)
-
-	con := fmt.Sprintf(":%d", d.Port)
-	err := d.server.ListenTCP(con)
-	if err != nil {
-		logger.Error.Printf("listen %s %s", con, err.Error())
-		return
-	}
-	// oldTime := 0
+	// d.chanData = make(chan externalData, 100)
 	ticker := time.NewTicker(time.Second)
 	for {
-		<-ticker.C
-		if TimeNowOfSecond()%d.Tsum == 0 {
-			// Закончился период усреднения передаем статистику
-			// fmt.Printf("%6d dev %d %d make new stat\n", TimeNowOfSecond(), d.ID, d.Tsum)
-			d.sendStatistics(TimeNowOfSecond())
-			// Очищаем хранилище секунд
-			d.makeNewMap()
-			if TimeNowOfSecond() == 0 {
-				//Новые сутки
-				d.stat.Statistics = make([]pudge.Statistic, 0)
+		select {
+		case <-ticker.C:
+			if TimeNowOfSecond()%d.Tsum == 0 {
+				// Закончился период усреднения передаем статистику
+				// fmt.Printf("%6d dev %6d %6d make new stat\n", TimeNowOfSecond(), d.ID, d.Tsum)
+				d.sendStatistics(TimeNowOfSecond())
+				// Очищаем хранилище секунд
+				d.makeNewMap()
+				if TimeNowOfSecond() == 0 {
+					//Новые сутки
+					d.stat.Statistics = make([]pudge.Statistic, 0)
+				}
 			}
-		}
-		// if oldTime != int(d.server.DiscreteInputs[0]) {
-		// Есть новые данные
-		d.addData(TimeNowOfSecond())
-		// 	oldTime = int(d.server.DiscreteInputs[0])
 		// }
+		case message := <-d.chanData:
+			// Есть новые данные
+			d.addData(message)
+			//Готовим посылку по МГР
+			d.makeMGR(message)
+			// logger.Debug.Print(d.getValue(message))
 
-		// if oldTime == TimeNowOfSecond() {
-		//Готовим посылку по МГР
-		d.makeMGR()
-		// }
+		}
 	}
 
 }
-func (d *Device) makeMGR() {
-	value := d.getValue()
+func (d *DeviceJson) makeMGR(message externalData) {
+	value := d.getValue(message)
 	mgr := send.MgrMessage{ID: d.ID, Time: time.Now(), Mgrs: make([]send.Mgr, 0)}
 	if len(d.Mrgs) == 0 {
 		return
@@ -91,7 +83,7 @@ func (d *Device) makeMGR() {
 	}
 
 }
-func (d *Device) makeNewMap() {
+func (d *DeviceJson) makeNewMap() {
 	d.Intervals = make(map[int]OneSecondData)
 	var value [16]int
 	for i := 0; i < len(value); i++ {
@@ -102,7 +94,7 @@ func (d *Device) makeNewMap() {
 	}
 	d.isInterval = true
 }
-func (d *Device) sendStatistics(ptime int) {
+func (d *DeviceJson) sendStatistics(ptime int) {
 	if !d.isInterval {
 		return
 	}
@@ -129,7 +121,7 @@ func (d *Device) sendStatistics(ptime int) {
 		g.Good = false
 	}
 	s := pudge.Statistic{Period: ptime / d.Tsum, Type: d.Type, TLen: d.Tsum / 60, Hour: ptime / 3600, Min: (ptime % 3600) / 60, Datas: make([]pudge.DataStat, 0)}
-	logger.Debug.Printf("id %d time %d period %d hour %d min %d ", d.ID, ptime, s.Period, s.Hour, s.Min)
+	// logger.Debug.Printf("id %d time %d period %d hour %d min %d ", d.ID, ptime, s.Period, s.Hour, s.Min)
 	for i, v := range g.Value {
 		if i >= d.size {
 			continue
@@ -138,48 +130,41 @@ func (d *Device) sendStatistics(ptime int) {
 		if !g.Good {
 			st = 1
 		}
-		if d.Type == 1 || d.Type == 0 {
-			s.Datas = append(s.Datas, pudge.DataStat{Chanel: i + 1, Status: st, Intensiv: v})
-		}
 		if d.Type == 2 {
 			s.Datas = append(s.Datas, pudge.DataStat{Chanel: i + 1, Status: st, Speed: v})
+		} else {
+			s.Datas = append(s.Datas, pudge.DataStat{Chanel: i + 1, Status: st, Intensiv: v})
 		}
 	}
-	// fmt.Printf("new add stat %v\n", s)
+	// logger.Debug.Printf("new add stat %v\n", s)
 	d.stat.Statistics = append(d.stat.Statistics, s)
 	d.stat.Date = time.Now()
 	d.chanArch <- d.stat
 }
-func (d *Device) addData(writeTime int) {
+func (d *DeviceJson) addData(message externalData) {
 	if !d.isInterval {
 		return
 	}
-	t := writeTime % d.Tsum
+	t := message.intime % d.Tsum
 	if _, is := d.Intervals[t]; !is {
+		logger.Error.Printf("not %d", message.intime)
 		return
 	}
-	d.Intervals[t] = OneSecondData{Good: true, Value: d.getValue()}
+	d.Intervals[t] = OneSecondData{Good: true, Value: d.getValue(message)}
+	// logger.Debug.Print(d.Intervals[t])
 }
-func (d *Device) getValue() [16]int {
-	var res [16]int
-	base := 0
+func (d *DeviceJson) getValue(message externalData) [16]int {
 	if d.Type == 1 {
-		for i := 0; i < 16; i++ {
-			pos := int(i / 4)
-			shift := (i % 4) * 4
-			res[i] = int((d.server.HoldingRegisters[base+pos] >> shift) & 0xf)
-		}
+		return message.vTS
 	}
 	if d.Type == 2 {
-		base = 4
-		for i := 0; i < 16; i++ {
-			pos := int(i / 2)
-			shift := (i % 2) * 8
-			res[i] = int((d.server.HoldingRegisters[base+pos] >> shift) & 0xff)
-		}
+		return message.sTS
 	}
-	return res
+	return message.vTS
 }
 func TimeNowOfSecond() int {
 	return time.Now().Hour()*3600 + time.Now().Minute()*60 + time.Now().Second()
+}
+func TimeToSeconds(p time.Time) int {
+	return p.Hour()*3600 + p.Minute()*60 + p.Second()
 }

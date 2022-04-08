@@ -5,6 +5,7 @@ type DkSet struct {
 	Dks    []DKStat `json:"dks"`
 }
 type DKStat struct {
+	UID  string `json:"uid"`  //Внешной идентификатор
 	Area int    `json:"area"` //Номер района
 	Ndk  int    `json:"dk"`   // Номер ДК
 	Type string `json:"type"`

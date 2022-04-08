@@ -13,6 +13,7 @@ import (
 	"github.com/BurntSushi/toml"
 	"github.com/ruraomsk/ag-server/logger"
 	"github.com/ruraomsk/camstat/dbase"
+	"github.com/ruraomsk/camstat/devjson"
 	"github.com/ruraomsk/camstat/devmodbus"
 	"github.com/ruraomsk/camstat/send"
 	"github.com/ruraomsk/camstat/setup"
@@ -68,8 +69,11 @@ func main() {
 	signal.Notify(c, os.Interrupt)
 	idms = make(chan send.MgrMessage, 100)
 	go devmodbus.Starter(&dkset, idms, chanArch)
+	go devjson.Starter(&dkset, idms, chanArch)
 	go send.Sender(idms)
 	go tester.StartTestModbus(&dkset)
+	go tester.StartTestJson(&dkset)
+
 loop:
 	for {
 		<-c

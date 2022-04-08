@@ -9,3 +9,5 @@ badproc=10
 	user= "postgres"
 	password= "162747"
 	dbname= "agserv"
+[json]
+	portjson=5000

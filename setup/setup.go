@@ -8,6 +8,12 @@ type Setup struct {
 	ConnectMgr string   `toml:"connectmgr"`
 	PortMgr    int      `toml:"portmgr"`
 	BadProc    float32  `toml:"badproc"` //Процент пропущенных записй после которого весть интервал считаетсая плохим
+	JsonStat   JsonStat `toml:"json"`
+}
+
+//
+type JsonStat struct {
+	PortJson int `toml:"portjson"`
 }
 
 //DataBase настройки базы данных postresql

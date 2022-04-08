@@ -2,36 +2,40 @@
     "region": 1,
     "dks": [
         {
+            "uid": "dev01",
             "area": 1,
             "dk": 1,
-            "type": "modbus",
+            "type": "json",
             "size": 16,
-            "demo": false,
-            "port": 5000
+            "demo": true,
+            "port": 2000
         },
         {
+            "uid": "dev02",
             "area": 1,
             "dk": 6,
-            "size": 16,
-            "type": "modbus",
-            "demo": false,
-            "port": 5001
+            "size": 12,
+            "type": "json",
+            "demo": true,
+            "port": 2001
         },
         {
+            "uid": "dev03",
             "area": 1,
             "dk": 7,
-            "size": 16,
-            "type": "modbus",
-            "demo": false,
-            "port": 5002
+            "size": 8,
+            "type": "json",
+            "demo": true,
+            "port": 2002
         },
         {
+            "uid": "dev04",
             "area": 1,
             "dk": 8,
-            "type": "modbus",
-            "size": 16,
-            "demo": false,
-            "port": 5003
+            "type": "json",
+            "size": 4,
+            "demo": true,
+            "port": 2003
         }
     ]
 }

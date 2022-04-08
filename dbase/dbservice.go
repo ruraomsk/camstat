@@ -9,7 +9,7 @@ import (
 
 	_ "github.com/lib/pq"
 
-	"github.com/ruraomsk/TLServer/logger"
+	"github.com/ruraomsk/ag-server/logger"
 	"github.com/ruraomsk/ag-server/pudge"
 	"github.com/ruraomsk/camstat/setup"
 )
@@ -109,7 +109,7 @@ func GetArhs(dk pudge.Region, date time.Time) (pudge.ArchStat, error) {
 		rows.Scan(&st)
 		err := json.Unmarshal(st, &stat)
 		if err != nil {
-			return pudge.ArchStat{}, err
+			return stat, err
 		}
 	}
 	return stat, nil

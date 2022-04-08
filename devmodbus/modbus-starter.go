@@ -13,14 +13,14 @@ import (
 )
 
 var err error
-var devices []Device
+var devices []DeviceModbus
 
 func Starter(dkset *stat.DkSet, idms chan send.MgrMessage, chanArch chan pudge.ArchStat) {
-	devices = make([]Device, 0)
+	devices = make([]DeviceModbus, 0)
 	for _, v := range dkset.Dks {
 		if v.Type == "modbus" {
 			reg := pudge.Region{Region: dkset.Region, Area: v.Area, ID: v.Ndk}
-			dev := Device{size: v.Size, Port: v.Port, chanMGR: idms, chanArch: chanArch, Mrgs: make([]int, 0)}
+			dev := DeviceModbus{size: v.Size, Port: v.Port, chanMGR: idms, chanArch: chanArch, Mrgs: make([]int, 0)}
 			dev.stat, err = dbase.GetArhs(reg, time.Now())
 			if err != nil {
 				logger.Error.Printf("чтение статистики %v %s", reg, err.Error())
