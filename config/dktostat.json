@@ -20,15 +20,6 @@
             "port": 2001
         },
         {
-            "uid": "dev03",
-            "area": 1,
-            "dk": 7,
-            "size": 8,
-            "type": "json",
-            "demo": true,
-            "port": 2002
-        },
-        {
             "uid": "dev04",
             "area": 1,
             "dk": 8,
