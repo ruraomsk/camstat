@@ -18,7 +18,6 @@ import (
 	"github.com/ruraomsk/camstat/send"
 	"github.com/ruraomsk/camstat/setup"
 	"github.com/ruraomsk/camstat/stat"
-	"github.com/ruraomsk/camstat/tester"
 )
 
 var (
@@ -71,8 +70,8 @@ func main() {
 	go devmodbus.Starter(&dkset, idms, chanArch)
 	go devjson.Starter(&dkset, idms, chanArch)
 	go send.Sender(idms)
-	go tester.StartTestModbus(&dkset)
-	go tester.StartTestJson(&dkset)
+	// go tester.StartTestModbus(&dkset)
+	// go tester.StartTestJson(&dkset)
 
 loop:
 	for {
