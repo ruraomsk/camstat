@@ -17,7 +17,7 @@ import (
 type MasterJson struct {
 	connect string //Строка соединения со слайвом
 	size    int
-	uid     string
+	uid     int
 }
 
 func (m *MasterJson) worker() {

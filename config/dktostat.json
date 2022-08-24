@@ -2,7 +2,7 @@
     "region": 1,
     "dks": [
         {
-            "uid": "dev01",
+            "uid": 333,
             "area": 1,
             "dk": 1,
             "type": "json",
@@ -11,7 +11,7 @@
             "port": 2000
         },
         {
-            "uid": "dev02",
+            "uid": 1,
             "area": 1,
             "dk": 6,
             "size": 12,
@@ -20,8 +20,8 @@
             "port": 2001
         },
         {
-            "uid": "dev04",
-            "area": 1,
+            "uid": 2,
+            "area": 2,
             "dk": 8,
             "type": "json",
             "size": 4,

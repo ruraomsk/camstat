@@ -19,12 +19,12 @@ import (
 
 var err error
 var devices map[pudge.Region]DeviceJson
-var uids map[string]pudge.Region
+var uids map[int]pudge.Region
 
 func Starter(dkset *stat.DkSet, idms chan send.MgrMessage, chanArch chan pudge.ArchStat) {
 
 	devices = make(map[pudge.Region]DeviceJson)
-	uids = make(map[string]pudge.Region)
+	uids = make(map[int]pudge.Region)
 
 	for _, v := range dkset.Dks {
 		if v.Type == "json" {
@@ -91,9 +91,9 @@ func Starter(dkset *stat.DkSet, idms chan send.MgrMessage, chanArch chan pudge.A
 }
 
 type EntryMessage struct {
-	Uid     string `json:"uid"` //Внешний идентификатор
-	CountTC []int  `json:"cts"` //начилие по каждой зоне детектирования число ТС
-	SpeedTC []int  `json:"stc"` //начилие по каждой зоне детектирования скорость ТС
+	Uid     int   `json:"uid"` //Внешний идентификатор
+	CountTC []int `json:"cts"` //начилие по каждой зоне детектирования число ТС
+	SpeedTC []int `json:"stc"` //начилие по каждой зоне детектирования скорость ТС
 	//Зоны заполняются от первой до последней максимум 16
 }
 
@@ -108,13 +108,15 @@ func workerStat(socket net.Conn) {
 			return
 		}
 		s = strings.ReplaceAll(s, "\n", "")
+		// logger.Debug.Printf("%s==%s", socket.RemoteAddr().String(), s)
+
 		err = json.Unmarshal([]byte(s), &ext)
 		if err != nil {
 			logger.Error.Printf("Statistic user %s ison unmarhal  %s", socket.RemoteAddr().String(), err.Error())
 			return
 		}
+		// logger.Debug.Printf("%s->%v", socket.RemoteAddr().String(), ext)
 		nm := externalData{intime: TimeNowOfSecond()}
-
 		for i, v := range ext.CountTC {
 			nm.vTS[i] = v
 		}
@@ -123,7 +125,7 @@ func workerStat(socket net.Conn) {
 		}
 		reg, is := uids[ext.Uid]
 		if !is {
-			logger.Error.Printf("нет внешнего %s", ext.Uid)
+			logger.Error.Printf("нет внешнего %d", ext.Uid)
 			continue
 		}
 		// logger.Debug.Print(nm)

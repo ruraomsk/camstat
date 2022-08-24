@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/signal"
 	"runtime"
+	"syscall"
 	"time"
 
 	"github.com/BurntSushi/toml"
@@ -65,7 +66,11 @@ func main() {
 		return
 	}
 	c := make(chan os.Signal, 1)
-	signal.Notify(c, os.Interrupt)
+	signal.Notify(c, os.Interrupt,
+		syscall.SIGQUIT,
+		syscall.SIGINT,
+		syscall.SIGTERM,
+		syscall.SIGHUP)
 	idms = make(chan send.MgrMessage, 100)
 	go devmodbus.Starter(&dkset, idms, chanArch)
 	go devjson.Starter(&dkset, idms, chanArch)
