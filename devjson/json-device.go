@@ -36,6 +36,9 @@ type DeviceJson struct {
 func (d *DeviceJson) Worker() {
 	d.isInterval = false
 	d.Intervals = make(map[int]OneSecondData)
+	if d.Tsum == 0 {
+		d.Tsum = 60
+	}
 	if TimeNowOfSecond()%d.Tsum == 0 {
 		d.makeNewMap()
 	}

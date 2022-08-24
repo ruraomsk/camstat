@@ -3,7 +3,7 @@
     "dks": [
         {
             "uid": 333,
-            "area": 1,
+            "area": 2,
             "dk": 1,
             "type": "json",
             "size": 16,
@@ -12,8 +12,8 @@
         },
         {
             "uid": 1,
-            "area": 1,
-            "dk": 6,
+            "area": 2,
+            "dk": 2,
             "size": 12,
             "type": "json",
             "demo": true,
@@ -22,7 +22,7 @@
         {
             "uid": 2,
             "area": 2,
-            "dk": 8,
+            "dk": 3,
             "type": "json",
             "size": 4,
             "demo": true,
